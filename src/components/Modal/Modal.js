@@ -3,8 +3,8 @@ import { ModalWindow, Overlay } from './Modal.styled';
 
 const Modal = ({ modalInfo, handlerOnClick }) => {
   return (
-    <Overlay class="overlay" onClick={handlerOnClick}>
-      <ModalWindow class="modal">
+    <Overlay className="overlay" onClick={handlerOnClick}>
+      <ModalWindow className="modal">
         <img src={modalInfo.src} alt={modalInfo.alt} />
       </ModalWindow>
     </Overlay>

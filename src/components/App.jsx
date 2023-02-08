@@ -4,11 +4,13 @@ import ImageGallery from './ImageGallery';
 import Modal from './Modal';
 import ButtonLoadMore from './Button/Button';
 import Loader from './Loader';
+import NoFind from './NoFind/NoFind';
 import getImage from '../services/fetchImage';
 
 import { Container } from './App.styled';
 
 //poland car
+//Could not find the image
 class App extends Component {
   state = {
     filter: '',
@@ -110,12 +112,10 @@ class App extends Component {
   };
 
   render() {
-    const { gallery, modalInfo, showLoad, showLoadMore } = this.state;
-
+    const { filter, gallery, modalInfo, showLoad, showLoadMore } = this.state;
     return (
       <Container>
         <Searchbar onSubmit={this.handlerOnSubmit} />
-
         {gallery.length > 0 && (
           <ImageGallery
             itemsGallery={gallery}
@@ -123,15 +123,14 @@ class App extends Component {
           />
         )}
 
+        {gallery.length === 0 && filter !== '' && !showLoad && <NoFind />}
         {modalInfo !== null && (
           <Modal
             modalInfo={modalInfo}
             handlerOnClick={this.handlerOnClickModal}
           />
         )}
-
         {showLoad && <Loader />}
-
         {gallery.length > 0 && showLoadMore && (
           <ButtonLoadMore
             textButton="Load more"
