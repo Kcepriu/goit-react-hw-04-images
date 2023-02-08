@@ -32,11 +32,19 @@ async function getImage(textQuery, numberPage = 1) {
     });
 
     const { hits: arrayFindElement, totalHits } = response.data;
-    return arrayFindElement;
+    const countShow = numberPage * PER_PAGE;
+
+    return {
+      itemsGallary: arrayFindElement,
+      noMore: countShow <= totalHits,
+    };
   } catch (error) {
     console.log('error fetch');
 
-    return [];
+    return {
+      itemsGallary: [],
+      noMore: false,
+    };
   }
 }
 

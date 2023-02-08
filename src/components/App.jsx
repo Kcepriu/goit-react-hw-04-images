@@ -8,55 +8,87 @@ import getImage from '../services/fetchImage';
 
 import { Container } from './App.styled';
 
+//poland car
 class App extends Component {
   state = {
     filter: '',
     currentNumberPage: 1,
     gallery: [],
     modalInfo: null,
-    status: '',
+    showLoad: '',
+    showLoadMore: false,
   };
 
-  async componentDidUpdate(_, prevState) {
+  async fetchImage() {
     const { filter, currentNumberPage } = this.state;
 
-    if (filter !== prevState.filter) {
-      console.log('componentDidUpdate', filter);
-      // Новий запит треба
-      // Очистити галерею
-      // фетчити нові дані
-      const itemsGallary = await getImage(filter, currentNumberPage);
+    this.setState({
+      showLoad: true,
+    });
 
-      console.log(itemsGallary);
+    try {
+      const { itemsGallary, noMore } = await getImage(
+        filter,
+        currentNumberPage
+      );
 
+      this.setState(prevState => {
+        return {
+          gallery: [...prevState.gallery, ...itemsGallary],
+          showLoadMore: noMore,
+        };
+      });
+    } catch {
+      console.log('Error fetch');
+    } finally {
       this.setState({
-        currentNumberPage: 1,
-        gallery: itemsGallary,
+        showLoad: false,
       });
     }
+  }
 
-    if (currentNumberPage !== prevState.currentNumberPage) {
-      console.log('componentDidUpdate', currentNumberPage);
-      // Запит нової сторінки
-      // фетчити нові дані
-      // const itemsGallary = await getImage(filter, numberPage);
-      // console.log(itemsGallary);
+  componentDidUpdate(_, prevState) {
+    const { filter, currentNumberPage, modalInfo } = this.state;
+
+    if (
+      filter !== prevState.filter ||
+      currentNumberPage !== prevState.currentNumberPage
+    ) {
+      this.fetchImage();
+    }
+
+    if (!modalInfo && modalInfo !== prevState.modalInfo) {
+      //Відключити слухач esc
+      document.removeEventListener('keydown', this.handlerKeyDownESC);
     }
   }
 
   // * Handlers
   handlerOnSubmit = event => {
+    // * Submit form
     event.preventDefault();
     const form = event.currentTarget;
     this.setState({
       filter: form.elements.filter.value,
+      currentNumberPage: 1,
+      gallery: [],
+      showLoadMore: false,
     });
     // form.reset();
   };
 
+  handrerClickLoadMore = event => {
+    // * Load more
+    this.setState(prevState => {
+      return { currentNumberPage: prevState.currentNumberPage + 1 };
+    });
+  };
+
   handlerOnClickImg = event => {
+    // * Open Modal
     if (event.currentTarget === event.target) return;
 
+    document.addEventListener('keydown', this.handlerKeyDownESC);
     this.setState({
       modalInfo: {
         src: event.target.dataset.largeImg,
@@ -65,26 +97,31 @@ class App extends Component {
     });
   };
 
-  handrerClickLoadMore = event => {
-    console.log('handrerClickLoadMore');
-  };
-
   handlerOnClickModal = event => {
-    //Close modal
+    // * Close modal
     if (event.currentTarget !== event.target) return;
     this.setState({ modalInfo: null });
   };
 
+  handlerKeyDownESC = event => {
+    // key press esc Close modal
+    if (event.key !== 'Escape') return;
+    this.setState({ modalInfo: null });
+  };
+
   render() {
-    const { gallery, modalInfo, status } = this.state;
+    const { gallery, modalInfo, showLoad, showLoadMore } = this.state;
+
     return (
       <Container>
         <Searchbar onSubmit={this.handlerOnSubmit} />
 
-        <ImageGallery
-          itemsGallery={gallery}
-          handlerOnClick={this.handlerOnClickImg}
-        />
+        {gallery.length > 0 && (
+          <ImageGallery
+            itemsGallery={gallery}
+            handlerOnClick={this.handlerOnClickImg}
+          />
+        )}
 
         {modalInfo !== null && (
           <Modal
@@ -93,12 +130,14 @@ class App extends Component {
           />
         )}
 
-        {status === 'ShowLoad' && <Loader />}
+        {showLoad && <Loader />}
 
-        <ButtonLoadMore
-          textButton="Load more"
-          handlerOnClick={this.handrerClickLoadMore}
-        />
+        {gallery.length > 0 && showLoadMore && (
+          <ButtonLoadMore
+            textButton="Load more"
+            handlerOnClick={this.handrerClickLoadMore}
+          />
+        )}
       </Container>
     );
   }
