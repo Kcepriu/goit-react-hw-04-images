@@ -9,8 +9,6 @@ import getImage from '../services/fetchImage';
 
 import { Container } from './App.styled';
 
-//poland car
-//Could not find the image
 class App extends Component {
   state = {
     filter: '',
@@ -124,13 +122,16 @@ class App extends Component {
         )}
 
         {gallery.length === 0 && filter !== '' && !showLoad && <NoFind />}
+
         {modalInfo !== null && (
           <Modal
             modalInfo={modalInfo}
             handlerOnClick={this.handlerOnClickModal}
           />
         )}
+
         {showLoad && <Loader />}
+
         {gallery.length > 0 && showLoadMore && (
           <ButtonLoadMore
             textButton="Load more"
