@@ -1,1 +1,1 @@
-export { defaulf } from './NoFind';
+export { default } from './NoFind';

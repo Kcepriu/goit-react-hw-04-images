@@ -13,4 +13,5 @@ ButtonLoadMore.propTypes = {
   textButton: PropTypes.string,
   handlerOnClick: PropTypes.func,
 };
+
 export default ButtonLoadMore;

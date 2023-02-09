@@ -4,7 +4,7 @@ import ImageGallery from './ImageGallery';
 import Modal from './Modal';
 import ButtonLoadMore from './Button/Button';
 import Loader from './Loader';
-import NoFind from './NoFind/NoFind';
+import NoFind from './NoFind';
 import getImage from '../services/fetchImage';
 
 import { Container } from './App.styled';
@@ -48,18 +48,13 @@ class App extends Component {
   }
 
   componentDidUpdate(_, prevState) {
-    const { filter, currentNumberPage, modalInfo } = this.state;
+    const { filter, currentNumberPage } = this.state;
 
     if (
       filter !== prevState.filter ||
       currentNumberPage !== prevState.currentNumberPage
     ) {
       this.fetchImage();
-    }
-
-    if (!modalInfo && modalInfo !== prevState.modalInfo) {
-      //Відключити слухач esc
-      document.removeEventListener('keydown', this.handlerKeyDownESC);
     }
   }
 
@@ -88,7 +83,6 @@ class App extends Component {
     // * Open Modal
     if (event.currentTarget === event.target) return;
 
-    document.addEventListener('keydown', this.handlerKeyDownESC);
     this.setState({
       modalInfo: {
         src: event.target.dataset.largeImg,
@@ -97,15 +91,7 @@ class App extends Component {
     });
   };
 
-  handlerOnClickModal = event => {
-    // * Close modal
-    if (event.currentTarget !== event.target) return;
-    this.setState({ modalInfo: null });
-  };
-
-  handlerKeyDownESC = event => {
-    // key press esc Close modal
-    if (event.key !== 'Escape') return;
+  onCloseModal = () => {
     this.setState({ modalInfo: null });
   };
 
@@ -126,7 +112,7 @@ class App extends Component {
         {modalInfo !== null && (
           <Modal
             modalInfo={modalInfo}
-            handlerOnClick={this.handlerOnClickModal}
+            handlerOnCloseModal={this.onCloseModal}
           />
         )}
 
