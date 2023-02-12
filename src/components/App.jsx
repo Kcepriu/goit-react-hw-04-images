@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import Modal from './Modal';
@@ -9,124 +9,99 @@ import getImage from '../services/fetchImage';
 
 import { Container } from './App.styled';
 
-class App extends Component {
-  state = {
-    filter: '',
-    currentNumberPage: 1,
-    gallery: [],
-    modalInfo: null,
-    showLoad: '',
-    showLoadMore: false,
-  };
+const App = () => {
+  const [filter, setFilter] = useState('');
+  const [currentNumberPage, setCurrentNumberPage] = useState(1);
+  const [gallery, setGallery] = useState([]);
+  const [modalInfo, setModalInfo] = useState(null);
+  const [showLoad, setShowLoad] = useState('');
+  const [showLoadMore, setShowLoadMore] = useState(false);
 
-  async fetchImage() {
-    const { filter, currentNumberPage } = this.state;
+  useEffect(
+    prevState => {
+      const fetchImage = async () => {
+        setShowLoad(true);
 
-    this.setState({
-      showLoad: true,
-    });
+        try {
+          const { itemsGallary, noMore } = await getImage(
+            filter,
+            currentNumberPage
+          );
 
-    try {
-      const { itemsGallary, noMore } = await getImage(
-        filter,
-        currentNumberPage
-      );
+          setGallery(prevState => [...prevState, ...itemsGallary]);
+          setShowLoadMore(noMore);
+        } catch {
+          console.log('Error fetch');
+        } finally {
+          setShowLoad(false);
+        }
+      };
 
-      this.setState(prevState => {
-        return {
-          gallery: [...prevState.gallery, ...itemsGallary],
-          showLoadMore: noMore,
-        };
-      });
-    } catch {
-      console.log('Error fetch');
-    } finally {
-      this.setState({
-        showLoad: false,
-      });
-    }
-  }
-
-  componentDidUpdate(_, prevState) {
-    const { filter, currentNumberPage } = this.state;
-
-    if (
-      filter !== prevState.filter ||
-      currentNumberPage !== prevState.currentNumberPage
-    ) {
-      this.fetchImage();
-    }
-  }
+      fetchImage();
+    },
+    [filter, currentNumberPage]
+  );
 
   // * Handlers
-  handlerOnSubmit = event => {
+  const handlerOnSubmit = event => {
     // * Submit form
     event.preventDefault();
     const form = event.currentTarget;
-    this.setState({
-      filter: form.elements.filter.value,
-      currentNumberPage: 1,
-      gallery: [],
-      showLoadMore: false,
-    });
-    // form.reset();
+    const newFilter = form.elements.filter.value;
+
+    if (newFilter === filter) return;
+
+    setFilter(form.elements.filter.value);
+    setCurrentNumberPage(1);
+    setGallery([]);
+    setShowLoadMore(false);
   };
 
-  handrerClickLoadMore = event => {
+  const handrerClickLoadMore = event => {
     // * Load more
-    this.setState(prevState => {
-      return { currentNumberPage: prevState.currentNumberPage + 1 };
-    });
+    setCurrentNumberPage(state => state + 1);
   };
 
-  handlerOnClickImg = event => {
+  const handlerOnClickImg = event => {
     // * Open Modal
     if (event.currentTarget === event.target) return;
 
-    this.setState({
-      modalInfo: {
-        src: event.target.dataset.largeImg,
-        alt: event.target.alt,
-      },
+    setModalInfo({
+      src: event.target.dataset.largeImg,
+      alt: event.target.alt,
     });
   };
 
-  onCloseModal = () => {
-    this.setState({ modalInfo: null });
+  const onCloseModal = () => {
+    setModalInfo(null);
   };
 
-  render() {
-    const { filter, gallery, modalInfo, showLoad, showLoadMore } = this.state;
-    return (
-      <Container>
-        <Searchbar onSubmit={this.handlerOnSubmit} />
-        {gallery.length > 0 && (
-          <ImageGallery
-            itemsGallery={gallery}
-            handlerOnClick={this.handlerOnClickImg}
-          />
-        )}
+  return (
+    <Container>
+      <Searchbar onSubmit={handlerOnSubmit} />
+      {gallery.length > 0 && (
+        <ImageGallery
+          itemsGallery={gallery}
+          handlerOnClick={handlerOnClickImg}
+        />
+      )}
 
-        {gallery.length === 0 && filter !== '' && !showLoad && <NoFind />}
+      {gallery.length === 0 && filter !== '' && !showLoad && <NoFind />}
 
-        {modalInfo !== null && (
-          <Modal
-            modalInfo={modalInfo}
-            handlerOnCloseModal={this.onCloseModal}
-          />
-        )}
+      {modalInfo !== null && (
+        <Modal modalInfo={modalInfo} handlerOnCloseModal={onCloseModal} />
+      )}
 
-        {showLoad && <Loader />}
+      {showLoad && <Loader />}
 
-        {gallery.length > 0 && showLoadMore && (
-          <ButtonLoadMore
-            textButton="Load more"
-            handlerOnClick={this.handrerClickLoadMore}
-          />
-        )}
-      </Container>
-    );
-  }
-}
+      {gallery.length > 0 && showLoadMore && (
+        <ButtonLoadMore
+          textButton="Load more"
+          handlerOnClick={handrerClickLoadMore}
+        />
+      )}
+    </Container>
+  );
+};
 
 export default App;

@@ -1,51 +1,46 @@
-import { Component } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import { ModalWindow, Overlay } from './Modal.styled';
 
 const modalRoot = document.querySelector('#modal-root');
 
-class Modal extends Component {
-  static propTypes = {
-    modalInfo: PropTypes.exact({
-      src: PropTypes.string.isRequired,
-      alt: PropTypes.string.isRequired,
-    }),
+const Modal = ({ modalInfo, handlerOnCloseModal }) => {
+  const { src, alt } = modalInfo;
 
-    handlerOnCloseModal: PropTypes.func,
-  };
+  useEffect(() => {
+    document.addEventListener('keydown', handlerKeyDownESC);
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.handlerKeyDownESC);
-  }
+    return () => {
+      document.removeEventListener('keydown', handlerKeyDownESC);
+    };
+  }, []);
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handlerKeyDownESC);
-  }
-
-  handlerOnClickModal = event => {
+  const handlerOnClickModal = event => {
     // * Close modal
-    if (event.currentTarget !== event.target) return;
-    this.props.handlerOnCloseModal();
+    if (event.currentTarget === event.target) handlerOnCloseModal();
   };
 
-  handlerKeyDownESC = event => {
+  const handlerKeyDownESC = event => {
     // key press esc Close modal
-    if (event.key !== 'Escape') return;
-    this.props.handlerOnCloseModal();
+    if (event.key === 'Escape') handlerOnCloseModal();
   };
 
-  render() {
-    const { src, alt } = this.props.modalInfo;
-    return createPortal(
-      <Overlay className="overlay" onClick={this.handlerOnClickModal}>
-        <ModalWindow className="modal">
-          <img src={src} alt={alt} />
-        </ModalWindow>
-      </Overlay>,
-      modalRoot
-    );
-  }
-}
+  return createPortal(
+    <Overlay className="overlay" onClick={handlerOnClickModal}>
+      <ModalWindow className="modal">
+        <img src={src} alt={alt} />
+      </ModalWindow>
+    </Overlay>,
+    modalRoot
+  );
+};
+
+Modal.propTypes = {
+  modalInfo: PropTypes.exact({
+    src: PropTypes.string.isRequired,
+    alt: PropTypes.string.isRequired,
+  }),
+};
 
 export default Modal;
