@@ -8,6 +8,15 @@ const modalRoot = document.querySelector('#modal-root');
 const Modal = ({ modalInfo, handlerOnCloseModal }) => {
   const { src, alt } = modalInfo;
 
+  const handlerOnClickModal = event => {
+    // * Close modal
+    if (event.currentTarget === event.target) handlerOnCloseModal();
+  };
+  const handlerKeyDownESC = event => {
+    // key press esc Close modal
+    if (event.key === 'Escape') handlerOnCloseModal();
+  };
+
   useEffect(() => {
     document.addEventListener('keydown', handlerKeyDownESC);
 
@@ -15,16 +24,6 @@ const Modal = ({ modalInfo, handlerOnCloseModal }) => {
       document.removeEventListener('keydown', handlerKeyDownESC);
     };
   }, []);
-
-  const handlerOnClickModal = event => {
-    // * Close modal
-    if (event.currentTarget === event.target) handlerOnCloseModal();
-  };
-
-  const handlerKeyDownESC = event => {
-    // key press esc Close modal
-    if (event.key === 'Escape') handlerOnCloseModal();
-  };
 
   return createPortal(
     <Overlay className="overlay" onClick={handlerOnClickModal}>
