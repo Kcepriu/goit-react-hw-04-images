@@ -19,25 +19,25 @@ const App = () => {
 
   useEffect(
     prevState => {
-      const fetchImage = async () => {
-        setShowLoad(true);
-
-        try {
-          const { itemsGallary, noMore } = await getImage(
-            filter,
-            currentNumberPage
-          );
-
-          setGallery(prevState => [...prevState, ...itemsGallary]);
-          setShowLoadMore(noMore);
-        } catch {
-          console.log('Error fetch');
-        } finally {
-          setShowLoad(false);
-        }
+      const fetchImage = async (filter, currentNumberPage) => {
+        const { itemsGallary, noMore } = await getImage(
+          filter,
+          currentNumberPage
+        );
+        return { itemsGallary, noMore };
       };
 
-      fetchImage();
+      setShowLoad(true);
+      try {
+        const { itemsGallary, noMore } = fetchImage(filter, currentNumberPage);
+
+        setGallery(prevState => [...prevState, ...itemsGallary]);
+        setShowLoadMore(noMore);
+      } catch {
+        console.log('Error fetch');
+      } finally {
+        setShowLoad(false);
+      }
     },
     [filter, currentNumberPage]
   );
