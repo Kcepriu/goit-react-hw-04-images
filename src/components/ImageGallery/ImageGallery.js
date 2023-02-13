@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import ImageGalleryItem from 'components/ImageGalleryItem';
 import { Gallery } from './ImageGallery.styled';
 
-const ImageGallery = ({ itemsGallery, handlerOnClick }) => {
+const ImageGallery = ({ itemsGallery }) => {
   return (
-    <Gallery className="gallery" onClick={handlerOnClick}>
+    <Gallery className="gallery">
       {itemsGallery.map(({ id, webformatURL, largeImageURL, tags }) => {
         return (
           <ImageGalleryItem
@@ -29,7 +29,6 @@ ImageGallery.propTypes = {
       tags: PropTypes.string.isRequired,
     })
   ),
-  handlerOnClick: PropTypes.func,
 };
 
 export default ImageGallery;
