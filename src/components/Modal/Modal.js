@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import { ModalWindow, Overlay } from './Modal.styled';
@@ -8,22 +8,29 @@ const modalRoot = document.querySelector('#modal-root');
 const Modal = ({ modalInfo, handlerOnCloseModal }) => {
   const { src, alt } = modalInfo;
 
-  const handlerOnClickModal = event => {
-    // * Close modal
-    if (event.currentTarget === event.target) handlerOnCloseModal();
-  };
-  const handlerKeyDownESC = event => {
-    // key press esc Close modal
-    if (event.key === 'Escape') handlerOnCloseModal();
-  };
+  const handlerOnClickModal = useCallback(
+    event => {
+      // * Close modal
+      if (event.currentTarget === event.target) handlerOnCloseModal();
+    },
+    [handlerOnCloseModal]
+  );
+
+  const handlerKeyDownESC = useCallback(
+    event => {
+      // key press esc Close modal
+      if (event.key === 'Escape') handlerOnCloseModal();
+    },
+    [handlerOnCloseModal]
+  );
 
   useEffect(() => {
-    document.addEventListener('keydown', handlerKeyDownESC);
+    window.addEventListener('keydown', handlerKeyDownESC);
 
     return () => {
-      document.removeEventListener('keydown', handlerKeyDownESC);
+      window.removeEventListener('keydown', handlerKeyDownESC);
     };
-  }, []);
+  }, [handlerKeyDownESC]);
 
   return createPortal(
     <Overlay className="overlay" onClick={handlerOnClickModal}>
