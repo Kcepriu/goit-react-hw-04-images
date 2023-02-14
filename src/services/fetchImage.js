@@ -23,7 +23,7 @@ function getParamReguest(textQuery, numberPage) {
   };
 }
 
-async function getImage(textQuery, numberPage = 1) {
+async function getImage(textQuery, numberPage = 1, controller) {
   if (textQuery === '')
     return {
       itemsGallary: [],
@@ -33,6 +33,7 @@ async function getImage(textQuery, numberPage = 1) {
   try {
     const response = await instanceAxios.get(URL, {
       params: getParamReguest(textQuery, numberPage),
+      signal: controller.signal,
     });
 
     const { hits: arrayFindElement, totalHits } = response.data;

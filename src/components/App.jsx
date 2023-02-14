@@ -18,13 +18,16 @@ const App = () => {
 
   useEffect(
     prevState => {
-      const fetchImage = async () => {
+      const controller = new AbortController();
+
+      async function fetchImage() {
         setShowLoad(true);
 
         try {
           const { itemsGallary, noMore } = await getImage(
             filter,
-            currentNumberPage
+            currentNumberPage,
+            controller
           );
 
           setGallery(prevState => [...prevState, ...itemsGallary]);
@@ -34,9 +37,13 @@ const App = () => {
         } finally {
           setShowLoad(false);
         }
-      };
+      }
 
       fetchImage();
+
+      return () => {
+        controller.abort();
+      };
     },
     [filter, currentNumberPage]
   );
