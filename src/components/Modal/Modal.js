@@ -8,29 +8,32 @@ const modalRoot = document.querySelector('#modal-root');
 const Modal = ({ modalInfo, handlerOnCloseModal }) => {
   const { src, alt } = modalInfo;
 
-  const handlerOnClickModal = useCallback(
-    event => {
-      // * Close modal
-      if (event.currentTarget === event.target) handlerOnCloseModal();
-    },
-    [handlerOnCloseModal]
-  );
+  const handlerOnClickModal = event => {
+    // * Close modal
+    if (event.currentTarget === event.target) handlerOnCloseModal();
+  };
 
-  const handlerKeyDownESC = useCallback(
-    event => {
-      // key press esc Close modal
-      if (event.key === 'Escape') handlerOnCloseModal();
-    },
-    [handlerOnCloseModal]
-  );
+  //! Залишу як приклад
+  // const handlerKeyDownESC = useCallback(
+  //   event => {
+  //     // key press esc Close modal
+  //     if (event.key === 'Escape') handlerOnCloseModal();
+  //   },
+  //   [handlerOnCloseModal]
+  // );
 
   useEffect(() => {
+    const handlerKeyDownESC = event => {
+      // key press esc Close modal
+      if (event.key === 'Escape') handlerOnCloseModal();
+    };
+
     window.addEventListener('keydown', handlerKeyDownESC);
 
     return () => {
       window.removeEventListener('keydown', handlerKeyDownESC);
     };
-  }, [handlerKeyDownESC]);
+  }, [handlerOnCloseModal]);
 
   return createPortal(
     <Overlay className="overlay" onClick={handlerOnClickModal}>
