@@ -16,37 +16,34 @@ const App = () => {
   const [showLoad, setShowLoad] = useState('');
   const [showLoadMore, setShowLoadMore] = useState(false);
 
-  useEffect(
-    prevState => {
-      const controller = new AbortController();
+  useEffect(() => {
+    const controller = new AbortController();
 
-      async function fetchImage() {
-        setShowLoad(true);
+    async function fetchImage() {
+      setShowLoad(true);
 
-        try {
-          const { itemsGallary, noMore } = await getImage(
-            filter,
-            currentNumberPage,
-            controller
-          );
+      try {
+        const { itemsGallary, noMore } = await getImage(
+          filter,
+          currentNumberPage,
+          controller
+        );
 
-          setGallery(prevState => [...prevState, ...itemsGallary]);
-          setShowLoadMore(noMore);
-        } catch {
-          console.log('Error fetch');
-        } finally {
-          setShowLoad(false);
-        }
+        setGallery(prevState => [...prevState, ...itemsGallary]);
+        setShowLoadMore(noMore);
+      } catch {
+        console.log('Error fetch');
+      } finally {
+        setShowLoad(false);
       }
+    }
 
-      fetchImage();
+    fetchImage();
 
-      return () => {
-        controller.abort();
-      };
-    },
-    [filter, currentNumberPage]
-  );
+    return () => {
+      controller.abort();
+    };
+  }, [filter, currentNumberPage]);
 
   // * Handlers
   const handlerOnSubmit = event => {
